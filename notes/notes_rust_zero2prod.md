@@ -155,6 +155,32 @@ turn on SSL settings for database in production mode (and turn off for local).
 
 Run the sqlx migration on the live database server once its up.
 
+## Chapter 6 : Input Validation
 
+If you let invalid input slip by and go into the database, it will only give you problems further down the line.
+
+Form inputs are a primary attack target. Best to have a layered security approach at different levels (input validation, parameterized queries, escaping invalid characters). Reject anything longer than 256 characters. Reject troublesome characters that are common in URLs, SQL Queries and HTML fragments.. but not in names. Forbidding them raises the complexity bar for SQL injection and phishing attempts
+
+Local vs. global approach to validation. If you take a local approach, you need to repeat the validation process at every part of the system, which doesn't scale. If you're putting validation into a function format.. you're not actually storing structural data about the input.. forcing a validation at every check point of the system.
+
+**Need a PARSING FUNCTION that converts unstructured input to a more structured output, an output that structurally guarantees that the invariants we care about hold from that point onwards.** 
+
+Effectively, use Rust type system as a means to validate. Make incorrect usage pattern unrepresentatble, by construction. THe more expressive the type system of a programming language, the tighter you can constrain code to only be able to represent states that are valid in the domain we are working in.
+
+Ownership system implies only three methods of ownership when "exposing" a value.. (1) you consume it too, taking ownership, (2) make it mutable, but provides reference exclusivity, (3) exposed read-only sharable reference. inner_ref or as_ref() do this.
+
+Panics in Rust are used to deal with unrecoverable errors. Failure mores that were not expected like running out of memory or full disk. If panic in response to user input, there is an application bug. But if it's something pretty imaginable (like invalid input) and you want to handle.. Use Results, which is error handling mechanism built into Rust. 
+
+Result is used as the return type for fallible operations. If success Ok(T) is returned. Otherwise, Err(E). Rust type system forces you to deal with both the happy path and the unhappy path. Errors, when combined with enums, are great building blocks for a robust error handling story.
+
+Put unit tests alongside type-driven domain handling (i.e. pass and fail bad inputs / good inputs) to fully test parsing.
+
+The ? operator says.. if let Error = TRY SOMETHING then error. This allows for early return if there's an error, and if success, then TRY SOMETHING will create the desired side effect anyways. ? can only be used with a Result.
+
+When handling error messages you want specificity in what KIND of error and what caused it.
+
+Property based testing - randomly generate things that "should be" valid. Significantly increase range of inputs to be validated.. increases confidence in correctness of code but not 100% exhaustive.. but it's the best you can do.
+
+Separation of concerns. Use parsing to convert a type from "wire format" (url encoded data from HTML form) to domain model (NewSubscriber) used in app.
 
 
