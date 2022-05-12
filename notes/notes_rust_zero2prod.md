@@ -184,5 +184,42 @@ Property based testing - randomly generate things that "should be" valid. Signif
 Separation of concerns. Use parsing to convert a type from "wire format" (url encoded data from HTML form) to domain model (NewSubscriber) used in app.
 
 try_into and try from is essentially trait that implements a parsing function 
+<br>
+
+## Chaper 7 : Deployment Modifications
+
+<br>Several instances of server app gets spawned. However, to serve the app, it's best to just have a single instance of a client making API requests (as opposed to a clone of a client for every instance). You want a clone of a reference pointer rather than clone of client instance, and these pointers to be pointing to a shared instance used across all spawned App instances
+
+Testing clients (that make requests) need a mock counterparty (server) for unit tests, rather than testing against an actual public API.
+
+Using randomized data in tests conveys a specific message: do not pay attention to these inputs, their values do not influence the outcome of the test, that's why they are random
+
+Mock interface from wiremock uses expect(1) that will verify once it goes out of scope, and thereforea separation assertion isn't written out. The mock should receive exactly one request that matches the conditions set by the mock.
+
+When interacting with API, be careful about subtle differences in naming convention (Pascal case) for certain parameters.
+
+Use pointers whereover possible rather than replicating and cloning values. Use &'a str (with lifetime 'a) instead of String.
+
+There's a subtle difference between testing whether a connection was successful (default behavior), or testing an error based on returned status code from the server (200 vs 500 code). you want error_for_status, not 'error'
+
+Automated tests reduce the risk associated with changes to an existing codebase. Tests act as documentation as well. Shows how the code is supposed to behave and what scenarios are considered relevant enough to have dedicated tests for. Good tests build technical leverage, but writing tests takes time. Additionally, if you do not actively invest in the health of the test suite, it will rot over time. Test code is still code.
+
+Don't jumble code together in same document just because it leverages the same setup. Refactor it, but don't "pull in helpers" into individual test files.. rather start with one main scope (a test executable), and then add in sub-modules into tests/api/main.rs .. this allows for recursive structure in case functions like health_check, subscriptions, etc need to be further broken down. Additionally these sub-modules can now pull in specific functions referenced within main (like a helper module with use crate::helpers::FUNCTION) that comes from having a single main executable.
+
+Load balancers support adding (and removing) backends dynamically, acting as one continuous "front" for the user, while background can change.. allows for horizontal scaling to match demand load, but can also implement rolling updates when deploying features. Health checks (on what instances are working properly) can be done passively (look at distribution of status codes / latency for each backend to determine health.. measure when user fires on a "lazy" basis), or active (regularly scheduled heartbeat checks).
+
+Load balancer coordinates and ensures redundancy of backend services.
+
+TO ensure high avilability, applications need to be stateless (context kept to one-time transactions). Instead, persistence concerns are delegated to databases. This allows for the use of load balancers because it doesn't matter which instance of the replica you're using (state doesn't matter). But they're all talking tot he same database.. 
+
+Think of a database as a single gigantic global variable.
+
+Migrating and changing schema for databases is hard. Old applications will naturally have a different schema interface that is incompatible with new database, and vice versa, especially during migration. Need to phase in changes (that are backwards compatible) with multiple stages..
+
+Migrate the database with new columns that are OPTIONAL.. then deploy the new code that leverages the new columns.. backfill old data  entries for new column with default values.. put in the NOT NULL constraints.. and app whould now be running on steady state basis.
+
+If you have multiple database transactions / queries within a single user request, you're going to need TRANSACTIONS (atomic).. Transactions start with BEGIN .. instructions in between.. and then a COMMIT.. (or a ROLLBACK) to avoid any states that are invalid / "in between" the individual queries. Either all in, or all out. 
+
+sqlx provides a transaction struct by calling pool.begin().. submit the query with execute(transaction).. but you'll need an explicit transaction.commit() call, or else the transaction defaults to a rollback when it falls out of scope.
 
 
