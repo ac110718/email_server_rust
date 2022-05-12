@@ -24,7 +24,8 @@ RUN cargo build --release --bin zero2prod
 # Runtime stage
 FROM debian:bullseye-slim AS runtime
 WORKDIR /app
-# Install OpenSSL - it is dynamically linked by some of our dependencies # Install ca-certificates - it is needed to verify TLS certificates
+# Install OpenSSL - it is dynamically linked by some of our dependencies 
+# Install ca-certificates - it is needed to verify TLS certificates
 # when establishing HTTPS connections
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends openssl ca-certificates \
