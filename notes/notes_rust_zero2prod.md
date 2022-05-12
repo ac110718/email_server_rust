@@ -183,4 +183,6 @@ Property based testing - randomly generate things that "should be" valid. Signif
 
 Separation of concerns. Use parsing to convert a type from "wire format" (url encoded data from HTML form) to domain model (NewSubscriber) used in app.
 
+try_into and try from is essentially trait that implements a parsing function 
+
 
