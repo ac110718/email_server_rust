@@ -7,7 +7,6 @@ pub struct Parameters {
     subscription_token: String,
 }
 
-#[allow(clippy::async_yields_async)]
 #[tracing::instrument(name = "Confirm a pending subscriber", skip(parameters, pool))]
 pub async fn confirm(parameters: web::Query<Parameters>, pool: web::Data<PgPool>) -> HttpResponse {
     let id = match get_subscriber_id_from_token(&pool, &parameters.subscription_token).await {
@@ -15,7 +14,6 @@ pub async fn confirm(parameters: web::Query<Parameters>, pool: web::Data<PgPool>
         Err(_) => return HttpResponse::InternalServerError().finish(),
     };
     match id {
-        // Non-existing token!
         None => HttpResponse::Unauthorized().finish(),
         Some(subscriber_id) => {
             if confirm_subscriber(&pool, subscriber_id).await.is_err() {
@@ -26,7 +24,6 @@ pub async fn confirm(parameters: web::Query<Parameters>, pool: web::Data<PgPool>
     }
 }
 
-#[allow(clippy::async_yields_async)]
 #[tracing::instrument(name = "Mark subscriber as confirmed", skip(subscriber_id, pool))]
 pub async fn confirm_subscriber(pool: &PgPool, subscriber_id: Uuid) -> Result<(), sqlx::Error> {
     sqlx::query!(

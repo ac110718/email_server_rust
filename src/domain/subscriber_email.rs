@@ -1,6 +1,6 @@
 use validator::validate_email;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct SubscriberEmail(String);
 
 impl SubscriberEmail {
@@ -10,6 +10,12 @@ impl SubscriberEmail {
         } else {
             Err(format!("{} is not a valid subscriber email.", s))
         }
+    }
+}
+
+impl std::fmt::Display for SubscriberEmail {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
     }
 }
 
@@ -25,16 +31,6 @@ mod tests {
     use claim::assert_err;
     use fake::faker::internet::en::SafeEmail;
     use fake::Fake;
-
-    #[derive(Debug, Clone)]
-    struct ValidEmailFixture(pub String);
-
-    impl quickcheck::Arbitrary for ValidEmailFixture {
-        fn arbitrary<G: quickcheck::Gen>(g: &mut G) -> Self {
-            let email = SafeEmail().fake_with_rng(g);
-            Self(email)
-        }
-    }
 
     #[test]
     fn empty_string_is_rejected() {
@@ -54,9 +50,19 @@ mod tests {
         assert_err!(SubscriberEmail::parse(email));
     }
 
+    // generate 100 random emails in a loop
+
+    #[derive(Debug, Clone)]
+    struct ValidEmailFixture(pub String);
+
+    impl quickcheck::Arbitrary for ValidEmailFixture {
+        fn arbitrary<G: quickcheck::Gen>(g: &mut G) -> Self {
+            let email = SafeEmail().fake_with_rng(g);
+            Self(email)
+        }
+    }
     #[quickcheck_macros::quickcheck]
     fn valid_emails_are_parsed_successfully(valid_email: ValidEmailFixture) -> bool {
-        dbg!(&valid_email.0);
         SubscriberEmail::parse(valid_email.0).is_ok()
     }
 }
