@@ -222,4 +222,8 @@ If you have multiple database transactions / queries within a single user reques
 
 sqlx provides a transaction struct by calling pool.begin().. submit the query with execute(transaction).. but you'll need an explicit transaction.commit() call, or else the transaction defaults to a rollback when it falls out of scope.
 
+## Chapter 10
 
+Cross site scripting: Query parameters not private, URL can be tweaked to feed bad input to server.
+
+Message Authentification Codes: Add a message tag to verify integrity and origin. HMACs are hash based authentification codes. Insert HMAC alongside message within the header code. 
