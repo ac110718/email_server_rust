@@ -227,3 +227,7 @@ sqlx provides a transaction struct by calling pool.begin().. submit the query wi
 Cross site scripting: Query parameters not private, URL can be tweaked to feed bad input to server.
 
 Message Authentification Codes: Add a message tag to verify integrity and origin. HMACs are hash based authentification codes. Insert HMAC alongside message within the header code. 
+
+Cookie is another side channel invisible to the browser history. One time use cookies (with no ttl) are called flash messages. Cookies are set by attaching a special HTTP header to the response - Set-Cookie.
+
+When it comes to durability, there are two types of cookies: session cookies and persistent cook- ies. Session cookies are stored in memory - they are deleted when the session ends (i.e. the browser is closed). Persistent cookies, instead, are saved to disk and will still be there when you re-open the browser. Set the max age
