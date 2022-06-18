@@ -231,3 +231,9 @@ Message Authentification Codes: Add a message tag to verify integrity and origin
 Cookie is another side channel invisible to the browser history. One time use cookies (with no ttl) are called flash messages. Cookies are set by attaching a special HTTP header to the response - Set-Cookie.
 
 When it comes to durability, there are two types of cookies: session cookies and persistent cook- ies. Session cookies are stored in memory - they are deleted when the session ends (i.e. the browser is closed). Persistent cookies, instead, are saved to disk and will still be there when you re-open the browser. Set the max age
+
+Use Redis as session token store as durability of RAM doesn't matter in this use case. For short-lived key value store Redis is good solution with speed boost.
+
+## Chatper 11 : Fault Tolerant Workflows
+
+Use idempotency key to ensure that multiple calls on retry have just one effect (i.e. no duplicate requests)
