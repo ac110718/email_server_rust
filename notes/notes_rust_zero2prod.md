@@ -237,3 +237,5 @@ Use Redis as session token store as durability of RAM doesn't matter in this use
 ## Chatper 11 : Fault Tolerant Workflows
 
 Use idempotency key to ensure that multiple calls on retry have just one effect (i.e. no duplicate requests)
+
+Use forward recovery with background workers (that work up to point of pushing final request step to API) to allow for self-healing recovery process should things go wrong. 
