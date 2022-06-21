@@ -221,6 +221,12 @@ Migrate the database with new columns that are OPTIONAL.. then deploy the new co
 If you have multiple database transactions / queries within a single user request, you're going to need TRANSACTIONS (atomic).. Transactions start with BEGIN .. instructions in between.. and then a COMMIT.. (or a ROLLBACK) to avoid any states that are invalid / "in between" the individual queries. Either all in, or all out. 
 
 sqlx provides a transaction struct by calling pool.begin().. submit the query with execute(transaction).. but you'll need an explicit transaction.commit() call, or else the transaction defaults to a rollback when it falls out of scope.
+## Chapter 9
+
+Data stored in our Postgres instance creates a temporal coupling between old and new versions of our application.
+
+Allow first for more leniency.. update the code, retroactively fill in the blanks, and make more rigorous requirements again.
+
 
 ## Chapter 10
 
